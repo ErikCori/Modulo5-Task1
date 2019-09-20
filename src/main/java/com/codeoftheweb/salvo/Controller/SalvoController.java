@@ -2,11 +2,14 @@ package com.codeoftheweb.salvo.Controller;
 
 
 import com.codeoftheweb.salvo.Model.GamePlayer;
+import com.codeoftheweb.salvo.Model.Salvo;
 import com.codeoftheweb.salvo.Model.Ship;
 import com.codeoftheweb.salvo.Repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.Repository.GameRepository;
 import com.codeoftheweb.salvo.Repository.PlayerRepository;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,10 +32,24 @@ public class SalvoController {
     @Autowired
     private PlayerRepository playerRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @RequestMapping("/games")
+    public Map<String, Object> getAll(Authentication authentication){
+        Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put("player", playerRepository.findByUsername(authentication.name()).makePlayerDto());
+        dto.put("games", gameRepository.findAll().stream().map(game -> game.makeGameDto()).collect(Collectors.toList()));
+        return dto;
+    }
     @RequestMapping("/games")
     public List<Object> getAllGames() {
         return gameRepository.findAll().stream().map(game -> game.makeGameDto()).collect(Collectors.toList());
     }
+    public Map<String, Object> makeApiGameDto(){
+        Map<String, Object> dto = new 
+    }
+
 
     @RequestMapping("/game_view/{gamePlayerId}")
     public Map<String, Object>gameView(@PathVariable long gamePlayerId){

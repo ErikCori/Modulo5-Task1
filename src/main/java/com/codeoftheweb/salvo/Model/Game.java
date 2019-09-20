@@ -50,4 +50,5 @@ public class Game {
         dto.put("scores", this.getGamePlayers().stream().map(gp -> gp.getPlayer().makeScoredto()));
         return dto;
     }
+
 }

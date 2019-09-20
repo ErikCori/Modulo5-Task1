@@ -30,9 +30,10 @@ public class Player {
     //Constructor
     public Player(){}
 
-    public Player(String username){
+    public Player(String username, String password){
 
         this.username = username;
+        this.password = password;
     }
 
     //Getters

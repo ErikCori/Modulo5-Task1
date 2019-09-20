@@ -11,12 +11,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -42,11 +48,11 @@ public class SalvoApplication {
 									  ScoreRepository scoreRepository){
 		return (args) -> {
 			//save  a couple of players
-			Player player1 = new Player("j.bauer@ctu.gov");
-			Player player2 = new Player("c.obrian@ctu.gov");
-			Player player3 = new Player("kim_bauer@gmail.com");
-			Player player4 = new Player("t.almeida@ctu.gov");
-			Player player5 = new Player("null");
+			Player player1 = new Player("j.bauer@ctu.gov", passwordEncoder().encode("24"));
+			Player player2 = new Player("c.obrian@ctu.gov", passwordEncoder().encode("42"));
+			Player player3 = new Player("kim_bauer@gmail.com", passwordEncoder().encode("kb"));
+			Player player4 = new Player("t.almeida@ctu.gov", passwordEncoder().encode("mole"));
+			Player player5 = new Player("null", passwordEncoder().encode("null"));
 
 			playerRepository.saveAll(Arrays.asList(player1, player2, player3, player4, player5));
 			//save a couple of games
@@ -167,25 +173,51 @@ public class SalvoApplication {
 		};
 	}
 }
-
+@EnableWebSecurity
 @Configuration
 class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 
 	@Autowired
 	PlayerRepository playerRepository;
 
-	@Override
+	//@Override
 	protected void configure(HttpSecurity http) throws Exception{
 		http.authorizeRequests()
-				.antMatchers("/admin/**").hasAuthority("ADMIN")
-				.antMatchers("/**").hasAuthority("USER")
-				.and()
-				.formLogin();
+				.antMatchers("/web/game.html").permitAll()
+				.antMatchers("/web/**").permitAll()
+				.antMatchers("/api/games").permitAll()
+				.antMatchers("/api/players").permitAll()
+				.antMatchers("/api/game_view/*").hasAuthority("USER")
+				.antMatchers("/rest").denyAll()
+				.anyRequest().permitAll()
+				.and();
 		http.formLogin()
 				.usernameParameter("username")
 				.passwordParameter("password")
 				.loginPage("/api/login");
 		http.logout().logoutUrl("/api/logout");
+
+		// turn off checking for CSRF tokens
+		http.csrf().disable();
+
+		// if user is not authenticated, just send an authentication failure response
+		http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+		// if login is successful, just clear the flags asking for authentication
+		http.formLogin().successHandler((req, res, auth) -> clearAuthenticationAttributes(req));
+
+		// if login fails, just send an authentication failure response
+		http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+		// if logout is successful, just send a success response
+		http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+	}
+
+	private void clearAuthenticationAttributes(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+		}
 	}
 
 	@Override
