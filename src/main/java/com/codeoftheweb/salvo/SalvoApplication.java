@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Arrays;
-import java.util.Date;
+
 
 
 @SpringBootApplication
@@ -173,56 +174,16 @@ public class SalvoApplication {
 		};
 	}
 }
-@EnableWebSecurity
+
 @Configuration
 class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 
 	@Autowired
 	PlayerRepository playerRepository;
 
-	//@Override
-	protected void configure(HttpSecurity http) throws Exception{
-		http.authorizeRequests()
-				.antMatchers("/web/game.html").permitAll()
-				.antMatchers("/web/**").permitAll()
-				.antMatchers("/api/games").permitAll()
-				.antMatchers("/api/players").permitAll()
-				.antMatchers("/api/game_view/*").hasAuthority("USER")
-				.antMatchers("/rest").denyAll()
-				.anyRequest().permitAll()
-				.and();
-		http.formLogin()
-				.usernameParameter("username")
-				.passwordParameter("password")
-				.loginPage("/api/login");
-		http.logout().logoutUrl("/api/logout");
-
-		// turn off checking for CSRF tokens
-		http.csrf().disable();
-
-		// if user is not authenticated, just send an authentication failure response
-		http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
-
-		// if login is successful, just clear the flags asking for authentication
-		http.formLogin().successHandler((req, res, auth) -> clearAuthenticationAttributes(req));
-
-		// if login fails, just send an authentication failure response
-		http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
-
-		// if logout is successful, just send a success response
-		http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
-	}
-
-	private void clearAuthenticationAttributes(HttpServletRequest request) {
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-		}
-	}
-
 	@Override
 	public void init(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(inputName-> {
+		auth.userDetailsService(inputName -> {
 			Player player = playerRepository.findByUsername(inputName);
 			if (player != null) {
 				return new User(player.getUsername(), player.getPassword(),
@@ -231,5 +192,41 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 				throw new UsernameNotFoundException("Unknown user: " + inputName);
 			}
 		});
+	}
+
+}
+@EnableWebSecurity
+@Configuration
+class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests()
+
+				.antMatchers("/web/games.html", "/api/games", "/api/login").permitAll()
+				.antMatchers("/rest/**").hasAuthority("ADMIN")
+				.antMatchers("/api/**", "/web/game.html**").hasAuthority("USER")
+				.anyRequest().permitAll();
+		http.formLogin()
+				.usernameParameter("username")
+				.passwordParameter("password")
+				.loginPage("/api/login");
+		http.logout().logoutUrl("/api/logout");
+
+		// turn off checking for CSRF tokens
+		http.csrf().disable();
+		// if user is not authenticated, just send an authentication failure response
+		http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+		// if login is successful, just clear the flags asking for authentication
+		http.formLogin().successHandler((req, res, auth) -> clearAuthenticationAttributes(req));
+		// if login fails, just send an authentication failure response
+		http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+		// if logout is successful, just send a success response
+		http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+	}
+	private void clearAuthenticationAttributes(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+		}
 	}
 }

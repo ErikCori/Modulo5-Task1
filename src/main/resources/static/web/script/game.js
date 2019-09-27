@@ -44,7 +44,7 @@ function loadData() {
       });
     })
     .fail(function (jqXHR, textStatus) {
-      alert('Failed: ' + textStatus);
+      alert('Failed: ' + textStatus);//Especificar cada error y  mensaje
     });
 }
 
