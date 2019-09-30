@@ -4,12 +4,20 @@
         <title>Games</title>
         <meta charset="utf-8">
   	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  	    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-  		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  	    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  	    <link rel="stylesheet" href="style/bootstrap.min.css">
     </head>
     <body>
         <h1>Salvo!!!!!</h1>
+        <div>
+            <form v-show="login == 'false'" method="POST" action="/api/login">
+                <label>Username:<br><input type="text" name="username"><br></label>
+                <label>Password:<br><input type="password" name="password"><br></label> 
+                <button type="submit">Log in</button>
+            </form>
+            <form v-show="login == 'true'">
+
+            </form>
+        </div>
         <div id="app">
             <div class="container">
                 <table class="table table-bordered" id="salvo-table">
@@ -17,19 +25,33 @@
                 </table>
             </div>
             <div class="container">
-                <table class="tables tables-bordered" id="leaderboard">
-
+                <table class="table table-bordered" id="leaderboard">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Total</th>
+                            <th>Won</th>
+                            <th>Lost</th>
+                            <th>Tied</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="score in scores">
+                            <td>{{score.email}}</td>
+                            <td>{{score.score.total}}</td>
+                            <td>{{score.score.won}}</td>
+                            <td>{{score.score.lost}}</td>
+                            <td>{{score.score.tied}}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-  		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
-  	</script>
-  	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-  		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
-  	</script>
-    <script src="script/games.js"></script>
+    <script src="script/popper.min.js"></script>
     <script src="script/jquery-3.3.1.min.js"></script>
+    <script src="script/bootstrap.min.js"></script>
+    <script src="script/games.js"></script>
+    
 </html>
