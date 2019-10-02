@@ -38,6 +38,8 @@ public class SalvoController {
         Map<String, Object> dto = new LinkedHashMap<>();
         if(!isGuest(authentication)){
             dto.put("player", playerRepository.findByUsername(authentication.getName()).makePlayerDto());
+        }else{
+            dto.put("player", "Guest");
         }
         dto.put("games", gameRepository.findAll().stream().map(game -> game.makeGameDto()).collect(Collectors.toList()));
         return dto;
@@ -45,15 +47,6 @@ public class SalvoController {
     private boolean isGuest(Authentication authentication) {
         return authentication == null || authentication instanceof AnonymousAuthenticationToken;
     }
-    /*@RequestMapping("/games")
-    public List<Object> getAllGames() {
-        return gameRepository.findAll().stream().map(game -> game.makeGameDto()).collect(Collectors.toList());
-    }
-    public Map<String, Object> makeApiGameDto(){
-        Map<String, Object> dto = new LinkedHashMap<>();
-        dto.put()
-    }*/
-
 
     @RequestMapping("/game_view/{gamePlayerId}")
     public ResponseEntity gameView(@PathVariable long gamePlayerId, Authentication authentication){
@@ -95,12 +88,30 @@ public class SalvoController {
         if(username.isEmpty()){
             return new ResponseEntity<>(makeMap("Error", "no name given"), HttpStatus.FORBIDDEN);
         }
+        if(password.isEmpty()){
+            return new ResponseEntity<>(makeMap("Error", "no password given"), HttpStatus.FORBIDDEN);
+        }
         Player player = playerRepository.findByUsername(username);
         if(player != null){
             return new ResponseEntity<>(makeMap("Error","Username already exists"), HttpStatus.CONFLICT);
         }
         Player newPlayer = playerRepository.save(new Player(username, password));
         return new ResponseEntity<>(makeMap("username:", newPlayer.getUsername()), HttpStatus.CREATED);
+    }
+
+    @RequestMapping(path = "/login", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String username, @RequestParam String password){
+        if(username.isEmpty()){
+            return new ResponseEntity<>(makeMap("Error", "no name given"), HttpStatus.FORBIDDEN);
+        }
+        if(password.isEmpty()){
+            return new ResponseEntity<>(makeMap("Error", "no password given"), HttpStatus.FORBIDDEN);
+        }
+        Player player = playerRepository.findByUsername(username);
+        if(player== null){
+            return new ResponseEntity<>(makeMap("Error", "user is not registered"), HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(makeMap("Succesful", "Logged in"), HttpStatus.ACCEPTED);
     }
 
     private Map<String, Object> makeMap (String key, Object value){

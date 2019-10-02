@@ -3,7 +3,7 @@ var urlLeader = "http://localhost:8080/api/leaderboard"
 var app = new Vue({
     el:'#app',
     data:{
-        login:false,
+        login: "false",
         games:[],
         scores:[],
     }
@@ -56,4 +56,7 @@ function createTableContent(games){
     });
     table += '</tbody>';
     return table;
+}
+function changeStatus(newStatus){
+    app.login = newStatus;
 }
