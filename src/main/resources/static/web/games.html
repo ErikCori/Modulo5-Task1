@@ -6,12 +6,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="style/bootstrap.min.css">
+    <link rel="stylesheet" href="style/games.css">
 </head>
 
 <body>
     <div id="app">
         <h1 class="text-center">Salvo!!!!!</h1>
-        <div class="text-right">
+        <div class="text-right bg-info">
             <div v-show="login == 'false'">
                 <form method="POST" action="/api/login">
                     <label>Username:<br><input placeholder="Username" type="text" name="username" required><br></label>
@@ -28,13 +29,13 @@
         <div>
             <div class="container">
                 <h2 class="text-center">Games</h2>
-                <table class="table table-bordered" id="salvo-table">
+                <table class="table table-bordered table-dark table-hover" id="salvo-table">
 
                 </table>
             </div>
             <div class="container">
                 <h2 class="text-center">Leaderboard</h2>
-                <table class="table table-bordered" id="leaderboard">
+                <table class="table table-bordered table-dark table-hover" id="leaderboard">
                     <thead>
                         <tr>
                             <th>Name</th>
