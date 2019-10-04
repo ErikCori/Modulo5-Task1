@@ -58,5 +58,12 @@ function createTableContent(games){
     return table;
 }
 function changeStatus(newStatus){
-    app.login = newStatus;
+    $.post("api/login", {username: "username.value", password: "password.value"})
+    .done(function(){
+        app.login = newStatus;
+        document.location.reload(true);
+    })
+    .fail(function(){
+        console.log("Falla en el login");
+    })
 }

@@ -17,13 +17,13 @@
                 <form method="POST" action="/api/login">
                     <label>Username:<br><input placeholder="Username" type="text" name="username" required><br></label>
                     <label>Password:<br><input placeholder="Password" type="password" name="password" required><br></label>
-                    <button type="submit" onclick="changeStatus('true')">Log in</button>
+                    <button onclick="changeStatus('true')">Log in</button>
                     <button type="button">Sign in</button>
                 </form>
             </div>
             <div v-show="login == 'true'">
                 <label>Logged IN!!</label>
-                <button type="button">Logout</button>
+                <button type="button" onclick="changeStatus('false')">Logout</button>
             </div>
         </div>
         <div>
