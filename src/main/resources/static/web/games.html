@@ -14,16 +14,18 @@
         <h1 class="text-center">Salvo!!!!!</h1>
         <div class="text-right bg-info">
             <div v-show="login == 'false'">
-                <form method="POST" action="/api/login">
+                <form method="POST" action="" id="loginForm">
                     <label>Username:<br><input placeholder="Username" type="text" name="username" required><br></label>
                     <label>Password:<br><input placeholder="Password" type="password" name="password" required><br></label>
-                    <button onclick="changeStatus('true')">Log in</button>
-                    <button type="button">Sign in</button>
+                    <button type="button" id="loginButton" >Log in</button>
+                    <button type="button" id="signinButton">Sign in</button>
                 </form>
             </div>
             <div v-show="login == 'true'">
-                <label>Logged IN!!</label>
-                <button type="button" onclick="changeStatus('false')">Logout</button>
+                <form method="POST" action="" id="logoutForm">
+                    <label>Logged IN!!</label>
+                    <button type="button" id="logoutButton">Logout</button>
+                </form>
             </div>
         </div>
         <div>

@@ -57,13 +57,54 @@ function createTableContent(games){
     table += '</tbody>';
     return table;
 }
-function changeStatus(newStatus){
-    $.post("api/login", {username: "username.value", password: "password.value"})
+
+$("#loginButton").click(
+    function(){
+        data ={username: document.forms['loginForm'].elements['username'].value, 
+                password: document.forms['loginForm'].elements['password'].value};
+        login(data, 'true');
+        $("#loginForm").hide();
+    }
+)
+
+$("#logoutButton").click(
+    function(){
+        $.post("/api/logout")
+        .done(function(){
+            location.reload();
+            $("#logoutForm").hide();
+        })
+    }
+)
+$("#signinButton").click(
+    function(){
+        data = {username: document.forms['loginForm'].elements['username'].value,
+                password: document.forms['loginForm'].elements['password'].value};
+        signin();
+    }
+)
+
+function login(data, newStatus){
+    $.post("/api/login", data)
     .done(function(){
         app.login = newStatus;
-        document.location.reload(true);
     })
     .fail(function(){
-        console.log("Falla en el login");
+        alert("User does not exist");
+        location.reload();
     })
+}
+
+function signin(data){
+    $.post("/api/players", data)
+    .done(function(){
+        location.reload();
+    })
+    .fail(function(){
+        alert("Username already exists");
+    })
+}
+
+function doSomething(){
+    alert("Haciendo algo");
 }
