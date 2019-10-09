@@ -99,20 +99,7 @@ public class SalvoController {
         return new ResponseEntity<>(makeMap("username:", newPlayer.getUsername()), HttpStatus.CREATED);
     }
 
-    /*@RequestMapping(path = "/login", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String username, @RequestParam String password){
-        if(username.isEmpty()){
-            return new ResponseEntity<>(makeMap("Error", "no name given"), HttpStatus.FORBIDDEN);
-        }
-        if(password.isEmpty()){
-            return new ResponseEntity<>(makeMap("Error", "no password given"), HttpStatus.FORBIDDEN);
-        }
-        Player player = playerRepository.findByUsername(username);
-        if(player== null){
-            return new ResponseEntity<>(makeMap("Error", "user is not registered"), HttpStatus.CONFLICT);
-        }
-        return new ResponseEntity<>(makeMap("Succesful", "Logged in"), HttpStatus.ACCEPTED);
-    }*/
+
 
     private Map<String, Object> makeMap (String key, Object value){
         Map<String, Object>  map = new HashMap<>();

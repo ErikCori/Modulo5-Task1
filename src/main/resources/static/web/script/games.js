@@ -4,6 +4,7 @@ var app = new Vue({
     el:'#app',
     data:{
         login: "false",
+        user:"",
         games:[],
         scores:[],
     }
@@ -62,7 +63,7 @@ $("#loginButton").click(
     function(){
         data ={username: document.forms['loginForm'].elements['username'].value, 
                 password: document.forms['loginForm'].elements['password'].value};
-        login(data, 'true');
+        login(data);
         $("#loginForm").hide();
     }
 )
@@ -84,10 +85,10 @@ $("#signinButton").click(
     }
 )
 
-function login(data, newStatus){
+function login(data){
     $.post("/api/login", data)
     .done(function(){
-        app.login = newStatus;
+        app.user = data.username;
     })
     .fail(function(){
         alert("User does not exist");
