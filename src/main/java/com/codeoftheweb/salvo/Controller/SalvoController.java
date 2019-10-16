@@ -39,7 +39,7 @@ public class SalvoController {
         if(!isGuest(authentication)){
             dto.put("player", playerRepository.findByUsername(authentication.getName()).makePlayerDto());
         }else{
-            dto.put("player", "Guest");
+            dto.put("player", null);
         }
         dto.put("games", gameRepository.findAll().stream().map(game -> game.makeGameDto()).collect(Collectors.toList()));
         return dto;
@@ -84,19 +84,23 @@ public class SalvoController {
     }
 
     @RequestMapping(path = "/players", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createUser(@RequestParam String username, @RequestParam String password){
-        if(username.isEmpty()){
+    public ResponseEntity<Map<String, Object>> createUser(@RequestParam String username, @RequestParam String password, Authentication authentication){
+        if(!isGuest(authentication)){
+            return new ResponseEntity<>(makeMap("error", "user logged in"), HttpStatus.CONFLICT);
+        }
+        else if(username.isEmpty()){
             return new ResponseEntity<>(makeMap("Error", "no name given"), HttpStatus.FORBIDDEN);
         }
-        if(password.isEmpty()){
+        else if(password.isEmpty()){
             return new ResponseEntity<>(makeMap("Error", "no password given"), HttpStatus.FORBIDDEN);
         }
-        Player player = playerRepository.findByUsername(username);
-        if(player != null){
+        else if(playerRepository.findByUsername(username) != null){
             return new ResponseEntity<>(makeMap("Error","Username already exists"), HttpStatus.CONFLICT);
         }
-        Player newPlayer = playerRepository.save(new Player(username, password));
-        return new ResponseEntity<>(makeMap("username:", newPlayer.getUsername()), HttpStatus.CREATED);
+        else {
+            Player newPlayer = playerRepository.save(new Player(username, passwordEncoder.encode(password)));
+            return new ResponseEntity<>(makeMap("username:", newPlayer.getUsername()), HttpStatus.CREATED);
+        }
     }
 
 
